@@ -25,8 +25,8 @@ const generateTokens = (user) => {
 
 const cookieOptions = {
     httpOnly: true,
-    secure: false, // Localhost
-   
+    secure: true, // Live environment (HTTPS) ke liye true hona lazmi hai
+    sameSite: 'none', // Cross-site (Vercel to Railway) ke liye ye zaroori hai
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000 
 };
