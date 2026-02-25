@@ -69,7 +69,19 @@ app.use('/api/portfolio-config', portfolioConfigRoutes);
 app.use('/api/services', serviceRoutes); // ✅ Ab aapka endpoint /api/services ban gaya
 // Health Check
 app.get('/', (req, res) => res.send("🚀 Canva Solutions Server is Running!"));
-
+app.get('/api/test-email', async (req, res) => {
+    try {
+        const sendEmail = require('./utils/sendEmail');
+        await sendEmail({
+            email: 'mubashirejaz786@gmail.com',
+            subject: 'Test Email',
+            html: '<h1>Server is working!</h1>'
+        });
+        res.send("Email Sent Successfully! ✅");
+    } catch (err) {
+        res.status(500).send("Email Failed: " + err.message);
+    }
+});
 // --- 3. 404 HANDLER ---
 app.use((req, res, next) => {
     res.status(404).json({
