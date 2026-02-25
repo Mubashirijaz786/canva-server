@@ -5,7 +5,6 @@ const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
 const Otp = require('../models/Otp');
 
-// --- 1. TOKEN GENERATION ---
 const generateTokens = (user) => {
     const accessToken = jwt.sign(
         { id: user._id, role: user.role }, 
@@ -20,80 +19,63 @@ const generateTokens = (user) => {
     return { accessToken, refreshToken };
 };
 
-// --- 2. COOKIE OPTIONS (Live Environment Fix) ---
+// Vercel aur Railway ke liye optimized options
 const cookieOptions = {
     httpOnly: true,
-    secure: true,      // HTTPS (Railway/Vercel) ke liye lazmi hai
-    sameSite: 'none',  // Cross-site (Vercel to Railway) connection ke liye
+    secure: true, // HTTPS ke liye true (Railway/Vercel)
+    sameSite: 'none', // Cross-site connection ke liye
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000 
 };
 
-// --- 3. LOGIN FUNCTION ---
 exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
-        
-        // Debugging logs taake Railway dashboard par status dikhayi de
-        console.log("Login Attempt for:", email.toLowerCase().trim());
-
+        // Trim add kiya hai taake space ka masla na ho
         const user = await User.findOne({ email: email.toLowerCase().trim() });
-        
-        if (!user) {
-            console.log("❌ User not found in database");
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ message: "Invalid Email or Password" });
         }
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        console.log("✅ Password Match Status:", isMatch);
-
-        if (!isMatch) {
-            return res.status(401).json({ message: "Invalid Email or Password" });
-        }
-
         const { accessToken, refreshToken } = generateTokens(user);
-        
-        // Token ko user record mein save karna
         user.refreshToken = [...user.refreshToken, refreshToken];
         await user.save();
-
         res.cookie('jwt', refreshToken, cookieOptions);
-        res.json({ 
-            accessToken, 
-            role: user.role, 
-            email: user.email, 
-            name: user.name 
-        });
-
-    } catch (err) { 
-        console.error("🔥 Login Error:", err.message);
-        next(err); 
-    }
+        res.json({ accessToken, role: user.role, email: user.email, name: user.name });
+    } catch (err) { next(err); }
 };
 
-// --- 4. REFRESH TOKEN ---
+exports.addAdmin = async (req, res, next) => {
+    try {
+        if (req.role !== 'superadmin') {
+            return res.status(403).json({ message: "Only Super Admin can add new admins." });
+        }
+        const { email, password, name } = req.body;
+        const exists = await User.findOne({ email: email.toLowerCase().trim() });
+        if (exists) return res.status(400).json({ message: "Admin already exists." });
+
+        const newUser = new User({ email, password, name, role: 'admin' });
+        await newUser.save();
+        res.status(201).json({ message: "New Admin created successfully!" });
+    } catch (err) { next(err); }
+};
+
 exports.refresh = async (req, res, next) => {
     try {
         const refreshToken = req.cookies?.jwt;
         if (!refreshToken) return res.status(401).json({ message: "No refresh token" });
-
         jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
             if (err) return res.status(403).json({ message: "Forbidden" });
-            
             const user = await User.findOne({ _id: decoded.id, refreshToken });
             if (!user) return res.status(403).json({ message: "Invalid Session" });
-
             const tokens = generateTokens(user);
             user.refreshToken = [...user.refreshToken.filter(rt => rt !== refreshToken), tokens.refreshToken];
             await user.save();
-
             res.cookie('jwt', tokens.refreshToken, cookieOptions);
             res.json({ accessToken: tokens.accessToken, role: user.role, name: user.name, email: user.email });
         });
     } catch (err) { next(err); }
 };
 
-// --- 5. LOGOUT ---
 exports.logout = async (req, res, next) => {
     try {
         const refreshToken = req.cookies?.jwt;
@@ -109,7 +91,6 @@ exports.logout = async (req, res, next) => {
     } catch (err) { next(err); }
 };
 
-// --- 6. FORGOT PASSWORD ---
 exports.forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
@@ -125,7 +106,8 @@ exports.forgotPassword = async (req, res, next) => {
         const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
         user.resetPasswordToken = hashedToken;
-        user.resetPasswordExpires = Date.now() + 3600000; // 1 Hour validity
+        user.resetPasswordExpires = Date.now() + 3600000; 
+        
         await user.save();
 
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
@@ -150,12 +132,11 @@ exports.forgotPassword = async (req, res, next) => {
             user.resetPasswordToken = undefined;
             user.resetPasswordExpires = undefined;
             await user.save();
-            return res.status(500).json({ message: "Email could not be sent. Check your SMTP settings." });
+            return res.status(500).json({ message: "Email could not be sent. Try again later." });
         }
     } catch (err) { next(err); }
 };
 
-// --- 7. RESET PASSWORD ---
 exports.resetPassword = async (req, res, next) => {
     try {
         const { token, password } = req.body;
@@ -168,7 +149,7 @@ exports.resetPassword = async (req, res, next) => {
 
         if (!user) return res.status(400).json({ message: "Reset link is invalid or has expired" });
 
-        user.password = password; // Model middleware hash kar dega
+        user.password = password;
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
         user.refreshToken = []; 
@@ -178,26 +159,26 @@ exports.resetPassword = async (req, res, next) => {
     } catch (err) { next(err); }
 };
 
-// --- 8. ADMIN MANAGEMENT (SUPER ADMIN ONLY) ---
-
 exports.sendAdminOTP = async (req, res, next) => {
     try {
-        if (req.role !== 'superadmin') return res.status(403).json({ message: "Forbidden" });
-
+        if (req.role !== 'superadmin') {
+            return res.status(403).json({ message: "Only Super Admin can initiate this." });
+        }
         const { email, name } = req.body;
+        if (!email || !name) return res.status(400).json({ message: "Name and Email are required" });
+
         const userExists = await User.findOne({ email: email.toLowerCase().trim() });
         if (userExists) return res.status(400).json({ message: "Admin with this email already exists!" });
 
         const otp = crypto.randomInt(100000, 999999).toString();
-        await Otp.deleteMany({ email });
-        await Otp.create({ email, otp });
+        await Otp.deleteMany({ email: email.toLowerCase().trim() });
+        await Otp.create({ email: email.toLowerCase().trim(), otp });
 
         await sendEmail({
             email,
             subject: 'Admin Access Verification - Canva Solutions',
-            html: `<h1>${otp}</h1><p>Super Admin is adding you. Share this code to complete registration.</p>`
+            html: `<h1>${otp}</h1><p>Super Admin is adding you as an admin. Share this code with them to complete your registration.</p>`
         });
-
         res.status(200).json({ message: "OTP sent to new admin's email!" });
     } catch (err) { next(err); }
 };
@@ -206,7 +187,6 @@ exports.verifyAndAddAdmin = async (req, res, next) => {
     try {
         if (req.role !== 'superadmin') return res.status(403).json({ message: "Forbidden" });
         const { email, password, name, otp } = req.body;
-
         const otpRecord = await Otp.findOne({ email: email.toLowerCase().trim(), otp });
         if (!otpRecord) return res.status(400).json({ message: "Invalid or expired OTP" });
 
@@ -216,17 +196,17 @@ exports.verifyAndAddAdmin = async (req, res, next) => {
             name, 
             role: 'admin' 
         }); 
-
         await newUser.save();
-        await Otp.deleteMany({ email });
-        
+        await Otp.deleteMany({ email: email.toLowerCase().trim() }); 
         res.status(201).json({ message: "New Admin registered successfully!" });
     } catch (err) { next(err); }
 };
 
 exports.getAllAdmins = async (req, res, next) => {
     try {
-        const admins = await User.find({ role: { $in: ['admin', 'superadmin'] } }).select('-password -refreshToken');
+        const admins = await User.find({ 
+            role: { $in: ['admin', 'superadmin'] } 
+        }).select('-password -refreshToken');
         res.status(200).json(admins);
     } catch (err) { next(err); }
 };
@@ -234,12 +214,10 @@ exports.getAllAdmins = async (req, res, next) => {
 exports.removeAdmin = async (req, res, next) => {
     try {
         const { id } = req.params;
-        if (id === req.user) return res.status(400).json({ message: "You cannot remove yourself!" });
-
+        if (id === req.user) return res.status(400).json({ message: "Bhai, aap khud ko remove nahi kar sakte!" });
         const adminToRemove = await User.findById(id);
         if (!adminToRemove) return res.status(404).json({ message: "Admin not found" });
-
-        if (adminToRemove.role === 'superadmin') return res.status(403).json({ message: "Cannot remove a Super Admin." });
+        if (adminToRemove.role === 'superadmin') return res.status(403).json({ message: "Cannot remove another Super Admin." });
 
         await User.findByIdAndDelete(id);
         res.status(200).json({ message: "Admin removed successfully!" });
