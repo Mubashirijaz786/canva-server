@@ -1,16 +1,13 @@
 const Inquiry = require('../models/Inquiry');
 const sendEmail = require('../utils/sendEmail');
 
-// 1. Handle New Inquiry (Form Submit)
 exports.handleInquiry = async (req, res) => {
     try {
         const { name, email, phone, budget, service, message } = req.body;
         
-        // ✅ Cloudinary Middleware use karne ki wajah se URL humein 'req.file.path' mein milega
         const fileUrl = req.file ? req.file.path : null;
-        const fileName = req.file ? req.file.originalname : "No Attachment";
+        const fileName = req.file ? req.file.originalname : null;
 
-        // 2. Database mein Inquiry save karo (attachmentUrl field lazmi add karein model mein)
         const newInquiry = await Inquiry.create({
             name, 
             email, 
@@ -18,11 +15,10 @@ exports.handleInquiry = async (req, res) => {
             budget, 
             service, 
             message,
-            attachmentUrl: fileUrl, // Database mein link save ho raha hai
+            attachmentUrl: fileUrl,
             attachmentName: fileName
         });
 
-        // 3. Professional Email Template (With Cloudinary Link)
         const htmlContent = `
             <div style="font-family: sans-serif; border: 1px solid #e5e7eb; padding: 25px; border-radius: 15px; max-width: 600px;">
                 <h2 style="color: #2563eb; margin-bottom: 20px;">🚀 New Project Inquiry</h2>
@@ -54,27 +50,27 @@ exports.handleInquiry = async (req, res) => {
             </div>
         `;
 
-        // 4. Email bhejein (Ab koi size error nahi aayega!)
-        await sendEmail({
-            email: process.env.SENDER_EMAIL || "mubashirejaz786@gmail.com",
-            subject: `New Inquiry: ${name} (${service})`,
-            html: htmlContent
-            // Note: Hum ab 'attachments' array nahi bhej rahe taake Brevo block na kare
-        });
+        try {
+            await sendEmail({
+                email: process.env.SENDER_EMAIL || "mubashirejaz786@gmail.com",
+                subject: `New Inquiry: ${name} (${service})`,
+                html: htmlContent
+            });
+        } catch (emailErr) {
+            console.error("Email Error:", emailErr.message);
+        }
 
         res.status(201).json({ 
             success: true, 
-            message: "Inquiry submitted successfully! Notification sent to email.",
+            message: "Inquiry submitted successfully!",
             data: newInquiry 
         });
 
     } catch (err) {
-        console.error("❌ INQUIRY ERROR:", err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 };
 
-// 2. Get All Inquiries (Admin Inbox)
 exports.getAllInquiries = async (req, res) => {
     try {
         const inquiries = await Inquiry.find().sort({ createdAt: -1 });
@@ -84,7 +80,6 @@ exports.getAllInquiries = async (req, res) => {
     }
 };
 
-// 3. Mark As Read
 exports.markAsRead = async (req, res) => {
     try {
         const { id } = req.params;
@@ -95,7 +90,6 @@ exports.markAsRead = async (req, res) => {
     }
 };
 
-// 4. Delete Inquiry
 exports.deleteInquiry = async (req, res) => {
     try {
         const { id } = req.params;
@@ -106,12 +100,10 @@ exports.deleteInquiry = async (req, res) => {
     }
 };
 
-// 5. Update Status (Resolved/Pending etc)
 exports.updateStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body; 
-
         const updatedInquiry = await Inquiry.findByIdAndUpdate(id, { status }, { new: true });
         res.status(200).json({ success: true, data: updatedInquiry });
     } catch (err) {

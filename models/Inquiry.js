@@ -7,7 +7,9 @@ const inquirySchema = new mongoose.Schema({
     budget: { type: String },
     service: { type: String },
     message: { type: String, required: true },
-    status: { type: String, default: 'unread' } // unread/read
+    attachmentUrl: { type: String }, 
+    attachmentName: { type: String },
+    status: { type: String, default: 'unread', enum: ['unread', 'read', 'resolved'] }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Inquiry', inquirySchema);

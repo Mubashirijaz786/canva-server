@@ -1,14 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
+const { upload } = require('../middleware/multer'); 
 const inquiryController = require('../controllers/contactController');
 const verifyJWT = require('../middleware/authMiddleware');
 const authorizeRoles = require('../middleware/roleMiddleware');
-
-const upload = multer({ 
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 25 * 1024 * 1024 } 
-});
 
 router.post('/', upload.single('attachment'), inquiryController.handleInquiry);
 
