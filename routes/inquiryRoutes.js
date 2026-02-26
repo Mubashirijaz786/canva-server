@@ -11,6 +11,8 @@ router.get('/', verifyJWT, authorizeRoles('admin', 'superadmin'), inquiryControl
 
 router.patch('/:id/read', verifyJWT, authorizeRoles('admin', 'superadmin'), inquiryController.markAsRead);
 
+router.patch('/:id/status', verifyJWT, authorizeRoles('admin', 'superadmin'), inquiryController.updateStatus);
+
 router.delete('/:id', verifyJWT, authorizeRoles('superadmin'), inquiryController.deleteInquiry);
 
 module.exports = router;
