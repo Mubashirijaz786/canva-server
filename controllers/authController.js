@@ -119,11 +119,11 @@ exports.forgotPassword = async (req, res, next) => {
                 html: `
                     <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
                         <h2 style="color: #2563eb;">Password Reset</h2>
-                        <p>Aapne password reset ki request ki hai. Niche diye gaye button par click karein:</p>
+                        <p>Click the button below to reset your password:</p>
                         <div style="margin: 30px 0;">
                             <a href="${resetLink}" style="background:#2563eb; color:#fff; padding:12px 25px; text-decoration:none; border-radius:8px; font-weight: bold;">Reset My Password</a>
                         </div>
-                        <p style="font-size: 12px; color: #666;">Ye link 1 ghante tak valid hai.</p>
+                        <p style="font-size: 12px; color: #666;">This link is valid for 1 hour.</p>
                     </div>`
             });
 
@@ -236,7 +236,7 @@ exports.removeAdmin = async (req, res, next) => {
     try {
         const { id } = req.params;
         if (id === req.user) {
-            return res.status(400).json({ message: "Bhai, aap khud ko remove nahi kar sakte!" });
+            return res.status(400).json({ message: "You cannot remove yourself!" });
         }
         const adminToRemove = await User.findById(id);
         if (!adminToRemove) return res.status(404).json({ message: "Admin not found" });

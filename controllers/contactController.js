@@ -7,16 +7,18 @@ exports.handleInquiry = async (req, res) => {
         const { name, email, phone, budget, service, message } = req.body;
         const file = req.file;
 
-        // Database mein Inquiry save karo (Default status 'unread' hoga)
+        // Database mein Inquiry save karo
         const newInquiry = await Inquiry.create({
             name, email, phone, budget, service, message
         });
 
+        // --- FILE ATTACHMENT LOGIC FOR BREVO API ---
         const attachments = [];
         if (file) {
+            // Brevo API buffer nahi, Base64 mangti hai
             attachments.push({
-                filename: file.originalname,
-                content: file.buffer 
+                content: file.buffer.toString('base64'), 
+                name: file.originalname
             });
         }
 
@@ -33,25 +35,27 @@ exports.handleInquiry = async (req, res) => {
                 <p style="background: #f9fafb; padding: 15px; border-radius: 10px;">
                     <strong>Message:</strong><br/>${message}
                 </p>
-                ${file ? `<p style="color: #059669;">📎 <strong>Attachment included:</strong> ${file.originalname}</p>` : ''}
+                ${file ? `<p style="color: #059669;">📎 <strong>Attachment:</strong> ${file.originalname} (Attached to this email)</p>` : ''}
             </div>
         `;
 
+        // Email bhejein
         await sendEmail({
-            email: process.env.EMAIL_USER,
+            // ✅ Hamesha SENDER_EMAIL use karein (mubashirejaz786@gmail.com)
+            email: process.env.SENDER_EMAIL || "mubashirejaz786@gmail.com",
             subject: `New Inquiry: ${name} (${service})`,
             html: htmlContent,
-            attachments: attachments
+            attachments: attachments // Base64 formatted array
         });
 
         res.status(201).json({ 
             success: true, 
-            message: "Inquiry submitted successfully!",
+            message: "Inquiry submitted successfully with attachment!",
             data: newInquiry 
         });
 
     } catch (err) {
-        console.error("❌ INQUIRY ERROR:", err);
+        console.error("❌ INQUIRY ERROR:", err.message);
         res.status(500).json({ success: false, message: err.message });
     }
 };
@@ -66,12 +70,13 @@ exports.getAllInquiries = async (req, res) => {
     }
 };
 
+// 3. Mark As Read
 exports.markAsRead = async (req, res) => {
     try {
         const { id } = req.params;
         const updatedInquiry = await Inquiry.findByIdAndUpdate(
             id, 
-            { status: 'read' }, // ✅ Status 'read' kar rahe hain
+            { status: 'read' }, 
             { new: true }
         );
         res.status(200).json({ success: true, data: updatedInquiry });
@@ -90,10 +95,12 @@ exports.deleteInquiry = async (req, res) => {
         res.status(500).json({ success: false, message: err.message });
     }
 };
+
+// 5. Update Status
 exports.updateStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body; // frontend se 'read' ya 'resolved' aayega
+        const { status } = req.body; 
 
         const updatedInquiry = await Inquiry.findByIdAndUpdate(
             id, 

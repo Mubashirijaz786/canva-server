@@ -9,28 +9,27 @@ const sendEmail = async (options) => {
             },
             to: [{ email: options.email }],
             subject: options.subject,
-            htmlContent: options.html // Brevo API mein 'htmlContent' likhte hain
+            htmlContent: options.html,
+           
+            attachment: options.attachments || [] 
         };
 
         const config = {
             headers: {
                 'accept': 'application/json',
-                'api-key': process.env.EMAIL_PASS, // Aapki xsmtpsib-... wali key
+                'api-key': process.env.EMAIL_PASS,
                 'content-type': 'application/json'
             }
         };
 
-        // Seedha Brevo ki API ko hit kar rahe hain
         const response = await axios.post('https://api.brevo.com/v3/smtp/email', data, config);
-        
-        console.log("✅ API EMAIL SENT SUCCESSFULLY:", response.data.messageId);
+        console.log("✅ BREVO API SUCCESS:", response.data.messageId);
         return response.data;
 
     } catch (error) {
-        // Agar koi galti ho to exact error message dikhayega
-        const errorMessage = error.response ? JSON.stringify(error.response.data) : error.message;
-        console.error("❌ BREVO API ERROR:", errorMessage);
-        throw new Error(errorMessage);
+        const errorDetail = error.response ? JSON.stringify(error.response.data) : error.message;
+        console.error("❌ BREVO API ERROR:", errorDetail);
+        throw new Error(errorDetail);
     }
 };
 
