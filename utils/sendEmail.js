@@ -9,10 +9,13 @@ const sendEmail = async (options) => {
             },
             to: [{ email: options.email }],
             subject: options.subject,
-            htmlContent: options.html,
-           
-            attachment: options.attachments || [] 
+            htmlContent: options.html
         };
+
+        
+        if (options.attachments && options.attachments.length > 0) {
+            data.attachment = options.attachments;
+        }
 
         const config = {
             headers: {
@@ -23,6 +26,7 @@ const sendEmail = async (options) => {
         };
 
         const response = await axios.post('https://api.brevo.com/v3/smtp/email', data, config);
+        
         console.log("✅ BREVO API SUCCESS:", response.data.messageId);
         return response.data;
 
