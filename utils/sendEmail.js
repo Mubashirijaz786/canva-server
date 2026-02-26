@@ -1,38 +1,36 @@
-const nodemailer = require('nodemailer');
+const axios = require('axios');
 
 const sendEmail = async (options) => {
-    // Railway par Port 2525 sab se ziada stable hai
-    const transporter = nodemailer.createTransport({
-        host: 'smtp-relay.brevo.com',
-        port: 2525, 
-        secure: false, 
-        auth: { 
-            user: process.env.EMAIL_USER, 
-            pass: process.env.EMAIL_PASS 
-        },
-        tls: {
-            rejectUnauthorized: false 
-        },
-        // Connection ko foran kill ya connect karne ke liye
-        connectionTimeout: 10000, 
-        greetingTimeout: 10000,
-        socketTimeout: 10000
-    });
-
-    const mailOptions = {
-        from: `"Canva Solutions" <${process.env.SENDER_EMAIL || "mubashirejaz786@gmail.com"}>`,
-        to: options.email,
-        subject: options.subject,
-        html: options.html
-    };
-
     try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log("✅ EMAIL SENT SUCCESSFULLY:", info.messageId);
-        return info;
+        const data = {
+            sender: { 
+                name: "Canva Solutions", 
+                email: process.env.SENDER_EMAIL || "mubashirejaz786@gmail.com" 
+            },
+            to: [{ email: options.email }],
+            subject: options.subject,
+            htmlContent: options.html // Brevo API mein 'htmlContent' likhte hain
+        };
+
+        const config = {
+            headers: {
+                'accept': 'application/json',
+                'api-key': process.env.EMAIL_PASS, // Aapki xsmtpsib-... wali key
+                'content-type': 'application/json'
+            }
+        };
+
+        // Seedha Brevo ki API ko hit kar rahe hain
+        const response = await axios.post('https://api.brevo.com/v3/smtp/email', data, config);
+        
+        console.log("✅ API EMAIL SENT SUCCESSFULLY:", response.data.messageId);
+        return response.data;
+
     } catch (error) {
-        console.error("❌ NODEMAILER ERROR INSIDE UTILS:", error.message);
-        throw error; // Is se controller ke catch block mein chala jayega
+        // Agar koi galti ho to exact error message dikhayega
+        const errorMessage = error.response ? JSON.stringify(error.response.data) : error.message;
+        console.error("❌ BREVO API ERROR:", errorMessage);
+        throw new Error(errorMessage);
     }
 };
 
