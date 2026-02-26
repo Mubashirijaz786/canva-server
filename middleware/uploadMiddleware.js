@@ -12,12 +12,11 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: async (req, file) => {
         const isVideo = file.mimetype.startsWith('video');
+        
         return {
             folder: 'canva_solutions',
             resource_type: 'auto',
-            allowed_formats: isVideo 
-                ? ['mp4', 'webm', 'mov', 'mkv'] 
-                : ['jpg', 'png', 'webp', 'jpeg', 'pdf', 'docx', 'doc', 'xlsx', 'csv'],
+            public_id: `${Date.now()}-${file.originalname.split('.')[0]}`,
             transformation: isVideo ? [{ quality: "auto" }] : []
         };
     },
