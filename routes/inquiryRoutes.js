@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { upload } = require('../middleware/multer'); 
+const { upload } = require('../middleware/uploadMiddleware'); 
 const inquiryController = require('../controllers/contactController');
 const verifyJWT = require('../middleware/authMiddleware');
 const authorizeRoles = require('../middleware/roleMiddleware');
