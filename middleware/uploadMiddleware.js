@@ -16,6 +16,10 @@ const storage = new CloudinaryStorage({
         return {
             folder: 'canva_solutions',
             resource_type: 'auto',
+            // ✅ Ye do lines extension ka masla hal karengi
+            use_filename: true, 
+            unique_filename: true,
+            // Extension ko URL mein shamil rakhne ke liye
             public_id: `${Date.now()}-${file.originalname.split('.')[0]}`,
             transformation: isVideo ? [{ quality: "auto" }] : []
         };
@@ -41,7 +45,7 @@ const deleteFromCloudinary = async (fileUrl) => {
         
         console.log(`Deleted: ${publicId}`);
     } catch (error) {
-        console.error("Cloudinary Delete Error:", error.message);
+        console.error("Cloudinary Error:", error.message);
     }
 };
 
