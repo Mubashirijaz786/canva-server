@@ -28,8 +28,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' })); 
 app.use(cookieParser());
 
-// --- 2. ROUTES REGISTRATION ---
-// Humne inhein yahan import kiya hai taake dotenv.config() pehle execute ho chuka ho
+
 const settingsRoutes = require('./routes/settingsRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const projectRoutes = require('./routes/projectRoutes');
@@ -46,7 +45,7 @@ const heroRoutes = require('./routes/heroRoutes');
 const trustedByRoutes = require('./routes/trustedByRoutes');
 const seoRoutes = require('./routes/seoRoutes');
 const portfolioConfigRoutes = require('./routes/portfolioConfigRoutes');
-const serviceRoutes = require('./routes/serviceRoutes'); // ✅ Path check kar lena file ka
+const serviceRoutes = require('./routes/serviceRoutes'); 
 
 
 
@@ -66,11 +65,11 @@ app.use('/api/hero', heroRoutes);
 app.use('/api/trusted-by', trustedByRoutes);
 app.use('/api/seo', seoRoutes);
 app.use('/api/portfolio-config', portfolioConfigRoutes);
-app.use('/api/services', serviceRoutes); // ✅ Ab aapka endpoint /api/services ban gaya
-// Health Check
+app.use('/api/services', serviceRoutes);
+
 app.get('/', (req, res) => res.send("🚀 Canva Solutions Server is Running!"));
 
-// --- 3. 404 HANDLER ---
+
 app.use((req, res, next) => {
     res.status(404).json({
         success: false,
@@ -78,7 +77,7 @@ app.use((req, res, next) => {
     });
 });
 
-// --- 4. GLOBAL ERROR HANDLER ---
+
 app.use((err, req, res, next) => {
 
     console.error("❌ SERVER ERROR =>", err.message); 

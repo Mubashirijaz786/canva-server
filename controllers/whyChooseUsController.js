@@ -1,48 +1,64 @@
 const WhyChooseUs = require('../models/WhyChooseUs');
+const WhyChooseUsImage = require('../models/WhyChooseUsImage');
+const { deleteFromCloudinary } = require('../middleware/uploadMiddleware');
 
-exports.getFeatures = async (req, res) => {
+exports.getWhyChooseUsData = async (req, res) => {
     try {
-        const features = await WhyChooseUs.find().sort({ createdAt: 1 });
-        res.status(200).json(features);
-    } catch (err) { res.status(500).json({ message: err.message }); }
-};
-
-exports.addFeature = async (req, res) => {
-    try {
-        const { title, description, iconName, isFeatured } = req.body;
-        if (isFeatured === 'true' || isFeatured === true) await WhyChooseUs.updateMany({}, { isFeatured: false });
+        const cards = await WhyChooseUs.find().sort({ createdAt: 1 });
+        const imageData = await WhyChooseUsImage.findOne();
         
-        const newFeature = new WhyChooseUs({
-            title, description, iconName,
-            isFeatured: isFeatured === 'true' || isFeatured === true,
-            image: req.file ? req.file.path : ""
+        res.status(200).json({
+            cards,
+            mainImage: imageData ? imageData.featureImage : ""
         });
-        await newFeature.save();
-        res.status(201).json(newFeature);
-    } catch (err) { res.status(400).json({ message: err.message }); }
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
 };
 
-exports.updateFeature = async (req, res) => {
+exports.updateGlobalImage = async (req, res) => {
     try {
-        const { isFeatured } = req.body;
-        if (isFeatured === 'true' || isFeatured === true) {
-            const oldHero = await WhyChooseUs.findOne({ isFeatured: true });
-            await WhyChooseUs.updateMany({}, { isFeatured: false });
-            // Inherit image if no new file is uploaded
-            if (!req.file && oldHero) req.body.image = oldHero.image;
+        if (!req.file) return res.status(400).json({ message: "No image file provided" });
+
+        let imageData = await WhyChooseUsImage.findOne();
+
+        if (imageData) {
+            if (imageData.featureImage) {
+                await deleteFromCloudinary(imageData.featureImage, 'image');
+            }
+            imageData.featureImage = req.file.path;
+            await imageData.save();
+        } else {
+            imageData = new WhyChooseUsImage({
+                featureImage: req.file.path
+            });
+            await imageData.save();
         }
-        
-        const updateData = { ...req.body };
-        if (req.file) updateData.image = req.file.path;
-        
-        const updated = await WhyChooseUs.findByIdAndUpdate(req.params.id, updateData, { new: true });
-        res.status(200).json(updated);
+
+        res.status(200).json({ success: true, data: imageData });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+};
+
+exports.addCard = async (req, res) => {
+    try {
+        const count = await WhyChooseUs.countDocuments();
+        if (count >= 4) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Limit reached! You can only add up to 4 cards." 
+            });
+        }
+        const newCard = new WhyChooseUs(req.body);
+        await newCard.save();
+        res.status(201).json(newCard);
     } catch (err) { res.status(400).json({ message: err.message }); }
 };
 
-exports.deleteFeature = async (req, res) => {
+exports.deleteCard = async (req, res) => {
     try {
         await WhyChooseUs.findByIdAndDelete(req.params.id);
-        res.status(200).json({ message: "Feature deleted successfully" });
+        res.status(200).json({ message: "Card deleted" });
     } catch (err) { res.status(500).json({ message: err.message }); }
 };

@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/whyChooseUsController');
-const verifyJWT = require('../middleware/authMiddleware');
-// ✅ Object mein se 'upload' ko nikalna lazmi hai
 const { upload } = require('../middleware/uploadMiddleware');
+const verifyJWT = require('../middleware/authMiddleware');
 
-router.get('/', controller.getFeatures);
-router.post('/', verifyJWT, upload.single('image'), controller.addFeature);
-router.put('/:id', verifyJWT, upload.single('image'), controller.updateFeature);
-router.delete('/:id', verifyJWT, controller.deleteFeature);
+router.get('/', controller.getWhyChooseUsData);
+
+router.post('/card', verifyJWT, controller.addCard);
+router.delete('/card/:id', verifyJWT, controller.deleteCard);
+
+router.put('/image', verifyJWT, upload.single('image'), controller.updateGlobalImage);
 
 module.exports = router;
