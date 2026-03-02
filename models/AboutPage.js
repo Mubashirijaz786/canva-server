@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const aboutPageSchema = new mongoose.Schema({
-    // --- Hero Section ---
+   
     badgeText: { 
         type: String, 
         default: "About Canva Solutions" 
@@ -9,9 +9,9 @@ const aboutPageSchema = new mongoose.Schema({
     heroTitle: { type: String },
     heroSubtitle: { type: String },
     heroDescription: { type: String },
-    heroImage: { type: String }, // Cloudinary URL
+    heroImage: { type: String }, 
 
-    // --- Stats Section ---
+    
     stats: [{
         number: { type: String }, 
         label: { type: String },  
@@ -28,13 +28,13 @@ const aboutPageSchema = new mongoose.Schema({
     founderImage: { type: String },
     founderVision: { type: String },
     
-    // About Story / Mission Blocks
+  
     founderSections: [{
         title: { type: String },
         description: { type: String }
     }],
 
-    // --- Core Values ---
+
     valuesTitle: { 
         type: String, 
         default: "Our Core Values" 

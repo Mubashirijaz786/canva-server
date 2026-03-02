@@ -8,6 +8,6 @@ const heroSchema = new mongoose.Schema({
     
     statsText: { type: String, default: "We’re Canva Solutions — the AI-fueled digital agency." },
     happyClientsCount: { type: String, default: "100+" },
-    clientImages: [{ type: String }] // Array of image URLs
+    clientImages: [{ type: String }] 
 }, { timestamps: true });
 module.exports = mongoose.model('Hero', heroSchema);
