@@ -23,7 +23,7 @@ const blogSchema = new mongoose.Schema({
     }],
 }, { timestamps: true });
 
-// ✅ MODERN SYNTAX (Removing 'next' to avoid "next is not a function" error)
+
 blogSchema.pre('save', function() {
     if (this.isModified('title') || !this.slug) {
         this.slug = this.title
@@ -36,7 +36,7 @@ blogSchema.pre('save', function() {
         this.metaTitle = this.title;
     }
     
-    // Yahan next() ki zaroorat nahi agar hum parameter nikal dein
+    
 });
 
 module.exports = mongoose.model('Blog', blogSchema);

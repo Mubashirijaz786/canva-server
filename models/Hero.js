@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const heroSchema = new mongoose.Schema({
     badgeText: { type: String, default: "IT SOLUTION COMPANY 2025" },
-    heading: { type: String, required: true },
-    description: { type: String, required: true },
+    heading: { type: String, default: "Transforming Ideas into Online Success", required: true },
+    description: { type: String, default: "At Canva Solutions, our expert digital services are powered by cutting-edge tools.", required: true },
     videoUrl: { type: String },
     
     statsText: { type: String, default: "We’re Canva Solutions — the AI-fueled digital agency." },

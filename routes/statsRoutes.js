@@ -11,9 +11,9 @@ router.get('/dashboard', async (req, res) => {
             Blog.countDocuments(),
             Project.countDocuments(),
             Team.countDocuments(),
-            // ✅ Sirf woh inquiries jo 'unread' hain Dashboard list ke liye
+            
             Inquiry.find({ status: 'unread' }).sort({ createdAt: -1 }), 
-            // ✅ Sirf 'unread' ka count Dashboard card ke liye
+            
             Inquiry.countDocuments({ status: 'unread' }) 
         ]);
 
@@ -23,7 +23,7 @@ router.get('/dashboard', async (req, res) => {
                 blogs: blogCount,
                 projects: projectCount,
                 team: teamCount,
-                inquiries: unreadCount // ✅ Ab card mein sirf "Pending" number dikhega
+                inquiries: unreadCount 
             },
             recentInquiries: unreadInquiries 
         });

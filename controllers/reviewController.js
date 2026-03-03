@@ -2,7 +2,7 @@ const Review = require('../models/Review');
 const ReviewImage = require('../models/ReviewImage');
 const { deleteFromCloudinary } = require('../middleware/uploadMiddleware');
 
-// ✅ 1. BRANDING IMAGE UPDATE (ALAG MODEL)
+
 exports.updateBrandingImage = async (req, res) => {
     try {
         if (!req.file) return res.status(400).json({ message: "Image upload karna lazmi hai" });
@@ -24,7 +24,7 @@ exports.updateBrandingImage = async (req, res) => {
     }
 };
 
-// ✅ 2. GET ALL DATA (REVIEWS + BRANDING IMAGE)
+
 exports.getReviewsData = async (req, res) => {
     try {
         const reviews = await Review.find().sort({ createdAt: -1 });
@@ -38,7 +38,7 @@ exports.getReviewsData = async (req, res) => {
     }
 };
 
-// ✅ 3. ADD REVIEW (NO IMAGE LOGIC)
+
 exports.addReview = async (req, res) => {
     try {
         const { author, role, quote, rating, isFeatured } = req.body;
@@ -60,7 +60,7 @@ exports.addReview = async (req, res) => {
     }
 };
 
-// ✅ 4. UPDATE REVIEW (NO IMAGE LOGIC)
+
 exports.updateReview = async (req, res) => {
     try {
         const { isFeatured, author, role, quote, rating } = req.body;
@@ -87,7 +87,7 @@ exports.updateReview = async (req, res) => {
     }
 };
 
-// ✅ 5. DELETE REVIEW (SIMPLE DELETE)
+
 exports.deleteReview = async (req, res) => {
     try {
         const review = await Review.findByIdAndDelete(req.params.id);

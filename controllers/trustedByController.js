@@ -24,10 +24,10 @@ exports.updateTrustedData = async (req, res) => {
         const oldData = await TrustedBy.findOne();
         const { topText, badgeText, heading } = req.body;
         
-        // 1. Frontend se bache hue purane logos ki list parse karein
+        
         let finalLogosList = req.body.existingLogos ? JSON.parse(req.body.existingLogos) : [];
 
-        // 2. Jo logos list mein nahi hain unhein Cloudinary se delete karein (Cleanup)
+        
         if (oldData && oldData.logos) {
             const removedLogos = oldData.logos.filter(url => !finalLogosList.includes(url));
             for (const url of removedLogos) {
@@ -35,7 +35,7 @@ exports.updateTrustedData = async (req, res) => {
             }
         }
 
-        // 3. Naye upload kiye gaye logos ko array mein shamil karein
+        
         if (req.files && req.files.logos) {
             const newLogoPaths = req.files.logos.map(file => file.path);
             finalLogosList = [...finalLogosList, ...newLogoPaths];
@@ -48,7 +48,7 @@ exports.updateTrustedData = async (req, res) => {
             logos: finalLogosList
         };
 
-        // 4. Side Image handle karein
+        
         if (req.files && req.files.sideImage) {
             if (oldData?.sideImage) {
                 await deleteFromCloudinary(oldData.sideImage, 'image');

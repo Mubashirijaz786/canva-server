@@ -18,7 +18,7 @@ const verifyJWT = (req, res, next) => {
         return res.status(403).json({ message: "Forbidden: Invalid Token" });
     }
 
-    // ✅ Payload extraction ko robust banayein
+    
     const userPayload = decoded.userInfo || decoded;
     
     req.user = userPayload.id || userPayload._id;

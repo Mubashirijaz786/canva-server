@@ -6,12 +6,12 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const connectDB = require('./config/db');
 
-// Database Connect
+
 connectDB();
 
 const app = express();
 
-// --- 1. MIDDLEWARES ---
+
 app.use(helmet({
     contentSecurityPolicy: false, 
     crossOriginResourcePolicy: { policy: "cross-origin" }

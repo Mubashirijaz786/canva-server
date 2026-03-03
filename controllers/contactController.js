@@ -2,16 +2,16 @@ const Inquiry = require('../models/Inquiry');
 const sendEmail = require('../utils/sendEmail');
 const { deleteFromCloudinary } = require('../middleware/uploadMiddleware'); 
 
-// 1. Handle New Inquiry (Form Submit)
+
 exports.handleInquiry = async (req, res) => {
     try {
         const { name, email, phone, budget, service, message } = req.body;
         
-        // Cloudinary se link aur original name handle karein
+        
         const fileUrl = req.file ? req.file.path : null;
         const fileName = req.file ? req.file.originalname : null;
 
-        // Inquiry Database mein save karein
+        
         const newInquiry = await Inquiry.create({
             name, 
             email, 
@@ -23,7 +23,7 @@ exports.handleInquiry = async (req, res) => {
             attachmentName: fileName
         });
 
-        // Email Template Design
+        
         const htmlContent = `
             <div style="font-family: sans-serif; border: 1px solid #e5e7eb; padding: 25px; border-radius: 15px; max-width: 600px;">
                 <h2 style="color: #2563eb; margin-bottom: 20px;">🚀 New Project Inquiry</h2>
@@ -55,7 +55,7 @@ exports.handleInquiry = async (req, res) => {
             </div>
         `;
 
-        // Email bhejein (Try-Catch taake agar email fail ho to controller crash na kare)
+        
         try {
             await sendEmail({
                 email: process.env.SENDER_EMAIL || "mubashirejaz786@gmail.com",
@@ -78,7 +78,7 @@ exports.handleInquiry = async (req, res) => {
     }
 };
 
-// 2. Get All Inquiries (Admin Dashboard)
+
 exports.getAllInquiries = async (req, res) => {
     try {
         const inquiries = await Inquiry.find().sort({ createdAt: -1 });
@@ -88,7 +88,7 @@ exports.getAllInquiries = async (req, res) => {
     }
 };
 
-// 3. Mark As Read
+
 exports.markAsRead = async (req, res) => {
     try {
         const { id } = req.params;
@@ -99,24 +99,24 @@ exports.markAsRead = async (req, res) => {
     }
 };
 
-// 4. Delete Inquiry (With Automatic Cloudinary Cleanup)
+
 exports.deleteInquiry = async (req, res) => {
     try {
         const { id } = req.params;
         
-        // Pehle inquiry check karein taake attachment URL mil sake
+        
         const inquiry = await Inquiry.findById(id);
 
         if (!inquiry) {
             return res.status(404).json({ success: false, message: "Inquiry not found" });
         }
 
-        // Agar file hai to Cloudinary se delete karein
+        
         if (inquiry.attachmentUrl) {
             await deleteFromCloudinary(inquiry.attachmentUrl);
         }
 
-        // Database se record delete karein
+        
         await Inquiry.findByIdAndDelete(id);
 
         res.status(200).json({ 
@@ -130,7 +130,7 @@ exports.deleteInquiry = async (req, res) => {
     }
 };
 
-// 5. Update Status (Resolved, Pending, etc.)
+
 exports.updateStatus = async (req, res) => {
     try {
         const { id } = req.params;

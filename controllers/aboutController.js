@@ -6,7 +6,7 @@ exports.updateAboutData = async (req, res) => {
         let about = await AboutPage.findOne();
         if (!about) about = new AboutPage();
 
-        // Arrays ko parse karein
+        
         const stats = req.body.stats ? JSON.parse(req.body.stats) : about.stats;
         const founderSections = req.body.founderSections ? JSON.parse(req.body.founderSections) : about.founderSections;
         const valuesList = req.body.valuesList ? JSON.parse(req.body.valuesList) : about.valuesList;
@@ -14,10 +14,10 @@ exports.updateAboutData = async (req, res) => {
         const oldHeroImage = about.heroImage;
         const oldFounderImage = about.founderImage;
 
-        // ✅ Purely assigning the body content (Meta data is now non-existent)
+        
         Object.assign(about, req.body);
 
-        // Files handling logic (Wahi purani)
+        
         if (req.files && req.files.length > 0) {
             for (const file of req.files) {
                 if (file.fieldname === 'heroImage') {

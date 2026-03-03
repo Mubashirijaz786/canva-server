@@ -5,9 +5,9 @@ const settingsSchema = new mongoose.Schema({
     phones: { type: [String], default: ["+1 737 443 6352"] },
     addresses: { type: [String], default: ["5900 Balcones Drive #29017 Austin, TX, 78731, USA"] },
     
-    // ✅ NEW GLOBAL LINKS
+    
     calendlyLink: { type: String, default: "https://calendly.com/canvasolutions-info/" },
-    whatsappNumber: { type: String, default: "17374436352" }, // Bina '+' ke save karein
+    whatsappNumber: { type: String, default: "17374436352" }, 
     whatsappMessage: { type: String, default: "Hello! I'm interested in your services." },
     
     facebook: { type: String, default: "" },

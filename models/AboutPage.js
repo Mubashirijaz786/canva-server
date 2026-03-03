@@ -6,9 +6,9 @@ const aboutPageSchema = new mongoose.Schema({
         type: String, 
         default: "About Canva Solutions" 
     },
-    heroTitle: { type: String },
-    heroSubtitle: { type: String },
-    heroDescription: { type: String },
+    heroTitle: { type: String, default: "Innovating the" },
+    heroSubtitle: { type: String, default: "Digital Future." },
+    heroDescription: { type: String, default: "We are a collective of dreamers, builders, and strategists. We don't just build software; we build the engines that power the next generation of businesses." },
     heroImage: { type: String }, 
 
     
@@ -18,7 +18,7 @@ const aboutPageSchema = new mongoose.Schema({
         iconName: { type: String } 
     }],
 
-    // --- Founder Section ---
+    
     founderMainTitle: { 
         type: String, 
         default: "Meet the Founder" 
@@ -26,7 +26,7 @@ const aboutPageSchema = new mongoose.Schema({
     founderName: { type: String },
     founderRole: { type: String },
     founderImage: { type: String },
-    founderVision: { type: String },
+    founderVision: { type: String, default: "To build reliable, scalable, and performance-driven digital solutions that help businesses grow with confidence." },
     
   
     founderSections: [{

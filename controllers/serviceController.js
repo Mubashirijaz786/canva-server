@@ -1,6 +1,6 @@
 const Service = require('../models/Service');
 
-// ✅ Get All Services
+
 exports.getServices = async (req, res) => {
     try {
         const services = await Service.find().sort({ order: 1 });
@@ -10,12 +10,12 @@ exports.getServices = async (req, res) => {
     }
 };
 
-// ✅ Update/Sync All Services (Bulk Update)
+
 exports.updateServices = async (req, res) => {
     try {
         const servicesData = JSON.parse(req.body.services);
         
-        // Purana data saaf karke naya insert karna (Bulk Sync)
+        
         await Service.deleteMany({});
         const updatedServices = await Service.insertMany(servicesData);
         

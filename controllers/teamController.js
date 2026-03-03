@@ -1,5 +1,5 @@
 const Team = require('../models/Team');
-const { deleteFromCloudinary } = require('../middleware/uploadMiddleware'); // ✅ Import delete helper
+const { deleteFromCloudinary } = require('../middleware/uploadMiddleware'); 
 
 exports.getTeam = async (req, res, next) => {
     try {
@@ -31,7 +31,7 @@ exports.updateMember = async (req, res, next) => {
 
         let finalImage = member.image; 
 
-        // ✅ Agar nayi file upload hui hai, toh purani Cloudinary se delete karein
+        
         if (req.file) {
             if (member.image) {
                 await deleteFromCloudinary(member.image, 'image');
@@ -53,7 +53,7 @@ exports.deleteMember = async (req, res, next) => {
         const member = await Team.findById(req.params.id);
         if (!member) return res.status(404).json({ message: "Member not found" });
 
-        // ✅ Member delete karne se pehle uski image Cloudinary se saaf karein
+        
         if (member.image) {
             await deleteFromCloudinary(member.image, 'image');
         }

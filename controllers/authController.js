@@ -89,7 +89,7 @@ exports.logout = async (req, res, next) => {
     } catch (err) { next(err); }
 };
 
-// --- FORGOT PASSWORD (UPDATED WITH LOGS) ---
+
 exports.forgotPassword = async (req, res, next) => {
     try {
         const { email } = req.body;
@@ -164,7 +164,7 @@ exports.resetPassword = async (req, res, next) => {
     } catch (err) { next(err); }
 };
 
-// --- SEND ADMIN OTP (UPDATED WITH LOGS) ---
+
 exports.sendAdminOTP = async (req, res, next) => {
     try {
         if (req.role !== 'superadmin') {

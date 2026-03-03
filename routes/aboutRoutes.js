@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const aboutController = require('../controllers/aboutController');
-// ✅ Object mein se 'upload' ko nikalna lazmi hai
+
 const { upload } = require('../middleware/uploadMiddleware');
 const verifyJWT = require('../middleware/authMiddleware'); 
 

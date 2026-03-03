@@ -3,9 +3,9 @@ const mongoose = require('mongoose');
 const serviceSchema = new mongoose.Schema({
     title: { type: String, required: true },
     desc: { type: String, required: true },
-    iconName: { type: String, required: true }, // Lucide icon name (e.g., 'Code')
+    iconName: { type: String, required: true }, 
     link: { type: String, default: '/services' },
-    color: { type: String, default: 'blue' }, // For dynamic glow effect
+    color: { type: String, default: 'blue' }, 
     order: { type: Number, default: 0 }
 }, { timestamps: true });
 

@@ -1,6 +1,6 @@
 const FAQ = require('../models/FAQ');
 
-// Get all FAQs
+
 exports.getFAQs = async (req, res) => {
     try {
         const faqs = await FAQ.find().sort({ order: 1 });
@@ -10,7 +10,7 @@ exports.getFAQs = async (req, res) => {
     }
 };
 
-// Create new FAQ
+
 exports.createFAQ = async (req, res) => {
     try {
         const { question, answer, order } = req.body;
@@ -21,7 +21,7 @@ exports.createFAQ = async (req, res) => {
     }
 };
 
-// Delete FAQ
+
 exports.deleteFAQ = async (req, res) => {
     try {
         await FAQ.findByIdAndDelete(req.params.id);
