@@ -1,6 +1,25 @@
 const ServicePage = require('../models/ServicePage');
 const { deleteFromCloudinary } = require('../middleware/uploadMiddleware');
 
+exports.getAllSlugs = async (req, res) => {
+    try {
+        const pages = await ServicePage.find({}, 'pageId slug');
+        res.status(200).json(pages);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+exports.getPageBySlug = async (req, res) => {
+    try {
+        const data = await ServicePage.findOne({ slug: req.params.slug });
+        if (!data) return res.status(404).json({ message: "Service page not found" });
+        res.status(200).json(data);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
 exports.getPageData = async (req, res) => {
     try {
         const data = await ServicePage.findOne({ pageId: req.params.pageId });
@@ -17,25 +36,19 @@ exports.updatePageData = async (req, res) => {
         let updateData = { ...req.body };
 
         try {
-            if (updateData.contentItems && typeof updateData.contentItems === 'string') {
-                updateData.contentItems = JSON.parse(updateData.contentItems);
-            }
-            if (updateData.faqs && typeof updateData.faqs === 'string') {
-                updateData.faqs = JSON.parse(updateData.faqs);
-            }
-            if (updateData.checklist && typeof updateData.checklist === 'string') {
-                updateData.checklist = JSON.parse(updateData.checklist);
-            }
-            if (updateData.reasons && typeof updateData.reasons === 'string') {
-                updateData.reasons = JSON.parse(updateData.reasons);
-            }
+            const arraysToParse = ['contentItems', 'faqs', 'checklist', 'reasons'];
+            arraysToParse.forEach(key => {
+                if (updateData[key] && typeof updateData[key] === 'string') {
+                    updateData[key] = JSON.parse(updateData[key]);
+                }
+            });
         } catch (parseErr) {
-            return res.status(400).json({ message: "Invalid array format" });
+            return res.status(400).json({ message: "Invalid data format in arrays" });
         }
 
         if (req.file) {
             const existingPage = await ServicePage.findOne({ pageId });
-            if (existingPage && existingPage.heroImage) {
+            if (existingPage?.heroImage) {
                 await deleteFromCloudinary(existingPage.heroImage, 'image');
             }
             updateData.heroImage = req.file.path; 

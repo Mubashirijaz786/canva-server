@@ -45,7 +45,8 @@ const heroRoutes = require('./routes/heroRoutes');
 const trustedByRoutes = require('./routes/trustedByRoutes');
 const seoRoutes = require('./routes/seoRoutes');
 const portfolioConfigRoutes = require('./routes/portfolioConfigRoutes');
-const serviceRoutes = require('./routes/serviceRoutes'); 
+const sitemapRoutes = require('./routes/sitemapRoutes');
+
 
 
 
@@ -65,7 +66,7 @@ app.use('/api/hero', heroRoutes);
 app.use('/api/trusted-by', trustedByRoutes);
 app.use('/api/seo', seoRoutes);
 app.use('/api/portfolio-config', portfolioConfigRoutes);
-app.use('/api/services', serviceRoutes);
+app.use('/api/sitemap', sitemapRoutes);
 
 app.get('/', (req, res) => res.send("🚀 Canva Solutions Server is Running!"));
 
