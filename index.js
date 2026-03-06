@@ -1,4 +1,4 @@
-require('dotenv').config(); 
+require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
@@ -13,19 +13,19 @@ const app = express();
 
 
 app.use(helmet({
-    contentSecurityPolicy: false, 
-    crossOriginResourcePolicy: { policy: "cross-origin" }
+  contentSecurityPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-app.use(cors({ 
-    origin: process.env.FRONTEND_URL || "http://localhost:5173", 
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"]
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
 app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' })); 
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(cookieParser());
 
 
@@ -52,7 +52,7 @@ const sitemapRoutes = require('./routes/sitemapRoutes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/team', teamRoutes);
-app.use('/api/blogs', blogRoutes); 
+app.use('/api/blogs', blogRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/projects', projectRoutes);
@@ -72,27 +72,27 @@ app.get('/', (req, res) => res.send("🚀 Canva Solutions Server is Running!"));
 
 
 app.use((req, res, next) => {
-    res.status(404).json({
-        success: false,
-        message: `Route not found - ${req.originalUrl}`
-    });
+  res.status(404).json({
+    success: false,
+    message: `Route not found - ${req.originalUrl}`
+  });
 });
 
 
 app.use((err, req, res, next) => {
 
-    console.error("❌ SERVER ERROR =>", err.message); 
-    res.status(err.status || 500).json({ 
-        success: false,
-        message: err.message || "Internal Server Error" 
-    });
+  console.error("❌ SERVER ERROR =>", err.message);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error"
+  });
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-   
-    if(!process.env.CLOUDINARY_API_KEY) {
-        console.log("⚠️ WARNING: Cloudinary API Key missing in process.env!");
-    }
+  console.log(`🚀 Server running on port ${PORT}`);
+
+  if (!process.env.CLOUDINARY_API_KEY) {
+    console.log("⚠️ WARNING: Cloudinary API Key missing in process.env!");
+  }
 });
